@@ -1,12 +1,72 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Settings</title>
     <link rel="stylesheet" href="../node_modules/bootstrap/dist/css/bootstrap.min.css" />
 </head>
-<body>
-    <div class="alert alert-danger"> Test</div>
+
+<body class="bg-dark">
+    <div class="container alert alert-dark mt-3">
+        <div class="row">
+            <div class="col">
+                <div class="input-group mb-3">
+                    <div class="input-group-prepend">
+                        <span class="input-group-text">Maximum Battery level</span>
+                    </div>
+                    <input type="number" maxlength="2" onfocus="setOldValue('batteryMax', this)" onblur="saveBatteryLevel('batteryMax', this)" id="settings-batteryMax"
+                        class="form-control text-center">
+                    <div class="input-group-append">
+                        <span class="input-group-text">%</span>
+                    </div>
+                </div>
+            </div>
+            <div class="col">
+                <div class="input-group mb-3">
+                    <div class="input-group-prepend">
+                        <span class="input-group-text">Minimum Battery level</span>
+                    </div>
+                    <input type="number" maxlength="2" onfocus="setOldValue('batteryMin', this)" onblur="saveBatteryLevel('batteryMin', this)" id="settings-batteryMin"
+                    class="form-control text-center">
+                    <div class="input-group-append">
+                        <span class="input-group-text">%</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let oldValues = {};
+        function setOldValue(key, $this)
+        {
+            oldValues[key] = $this.value;
+        }
+
+        function saveBatteryLevel(key, $this) {
+            let value = parseInt($this.value || 0);
+            if (!value || value < 0 || value > 100) {
+                // $this.select();
+                $this.value = oldValues[key];
+                return;
+            }
+
+            switch(key)
+            {
+                case 'batteryMin':
+                    if(value >= parseInt(document.querySelector("#settings-batteryMax").value || 0)) return $this.value = oldValues[key];
+                    break;
+                case 'batteryMax':
+                    if(value <= parseInt(document.querySelector("#settings-batteryMin").value || 0)) return $this.value = oldValues[key];
+                    break;
+            }
+
+            window.electronAPI.saveSettings(key, value);
+            oldValues[key] = $this.value;
+        }
+    </script>
 </body>
+
 </html>
