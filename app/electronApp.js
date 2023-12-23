@@ -1,40 +1,32 @@
-const {app, BrowserWindow, Tray, Notification, nativeImage, Menu, MenuItem, ipcMain, dialog} = require('electron');
+const {app, BrowserWindow, Tray, nativeImage, Menu, ipcMain} = require('electron');
 const defaultContextMenu = require('electron-context-menu');
 const path = require('node:path');
-const battery = require("./battery");
+const battery = new (require("./battery"));
 const settings = new (require("./settings"));
 const testMode = process.argv.includes("--trace-warnings");
-let main, contents, 
-iconPath = nativeImage.createFromPath(__dirname+'/assets/battery_icons/loading.png'),
+let main, contents, contextMenu,
+iconPath = nativeImage.createFromPath(__dirname+'/../assets/battery_icons/loading.png'),
 titleName = "Battery Detector";
 let tray = null;
-
-
+let quit = false;
+let settingsLoaded = false;
+let timer = 10; //sec
 module.exports = class {
-    quit = false;
+    
     constructor()
-    {
-        app.on('second-instance', () => {    
+    {          
+        app.on('second-instance', async () => {    
             if (main) {
                 if(!main.isVisible())
                 {
                     main.show();
-                    this.makeTray(true);
+                    await this.makeTray(true);
                 }
                 if(main.isMinimized()) main.restore();
                 main.focus();
             }
         });
         
-        
-        // app.on("web-contents-created", (e, contents) => {
-        //    defaultContextMenu({
-        //       window: contents,
-        //       showSearchWithGoogle: false,
-        //       showInspectElement: false
-              
-        //    });
-        // });
 
         app.whenReady().then(() => this.start());
     };
@@ -59,16 +51,37 @@ module.exports = class {
             hash: JSON.stringify(settings.values),
         });
         contents = main.webContents;
-        if(!testMode) main.setMenu(null);
+        // if(!testMode) 
+            main.setMenu(null);
         contents.on('did-finish-load', () => {
-            main.show();
+            // main.show();
+            main.hide();
+            settingsLoaded = true;
+            console.log("settings loaded");
+        });
+        await this.makeTray();
 
+        main.on('close', async (e) =>
+        {
+            if(!quit)
+            {
+                main.hide();
+                await this.makeTray(true);
+                e.preventDefault();                
+            }
         });
         // app.exit();
     };
 
+    async startNotifications()
+    {
+        setTimeout(async () => {
+            this.detectIcon();
+            await this.startNotifications();
+        }, timer * 1000);
+    }
 
-    makeTray(overWrite)
+    async makeTray(overWrite)
     {
         if(!tray || overWrite)
         {
@@ -83,30 +96,54 @@ module.exports = class {
                 //     tray.popUpContextMenu(contextMenu);
                 // });
                 tray.on('click', () => {
-                    toggleWindow();
+                    this.toggleWindow();
                 });
             }
-            
+            let $this = this;
             contextMenu = Menu.buildFromTemplate([
                 { 
                     label: "Settings", 
                     type: 'normal', 
                     click(){
-                        toggleWindow()
+                        $this.toggleWindow()
                     }
                 },
                 {
                     label: "Quit", 
                     type: 'normal', 
                     click(){
-                        Quit();                                
+                        $this.quit();                                
                     },
                 }
             ]);
 
             
             tray.setContextMenu(contextMenu);
-            dedectIcon();
+            await this.detectIcon();
         }
+    }
+
+    async detectIcon()
+    {
+        if(tray) 
+        {
+            let {image, val} = await battery.currentIcon(true);
+            tray.setImage(nativeImage.createFromPath(image));
+            tray.setTitle(`${titleName} ${val}%`);
+            tray.setToolTip(`${titleName} ${val}%`);
+        }
+    }
+
+    quit()
+    {
+        quit = true;        
+        app.exit();
+        return false;
+    }
+
+    toggleWindow()
+    {
+        if(!settingsLoaded) return false;
+        main.isVisible() ? main.hide() : main.show();
     }
 }
