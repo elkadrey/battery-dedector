@@ -13,7 +13,7 @@ npm run debug
 
 ## Build for linux
 ```
-npm run build linux
+npm run build-linux
 ```
 
 ## Build for windows

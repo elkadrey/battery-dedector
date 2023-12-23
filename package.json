@@ -1,34 +1,59 @@
 {
-  "name": "battery-dedector",
-  "version": "1.0.0",
-  "description": "Battery Notifications",
-  "main": "app.js",
-  "scripts": {
-    "start": "electron .",
-    "debug": "electron --trace-warnings ."
-  },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/elkadrey/battery-dedector.git"
-  },
-  "keywords": [
-    "Battery",
-    "dedector",
-    "indecator"
-  ],
-  "author": "Ahmed Elkadrey",
-  "license": "ISC",
-  "bugs": {
-    "url": "https://github.com/elkadrey/battery-dedector/issues"
-  },
-  "homepage": "https://github.com/elkadrey/battery-dedector#readme",
-  "dependencies": {
-    "bootstrap": "^5.3.2",
-    "electron": "^28.1.0",
-    "electron-builder": "^24.9.1",
-    "electron-context-menu": "^3.6.1",
-    "electron-notarize": "^1.2.2",
-    "electron-prompt": "^1.7.0",
-    "node-storage": "^0.0.9"
-  }
+    "name": "battery-detector",
+    "version": "1.0.0",
+    "description": "Battery detector with notifications",
+    "main": "app.js",
+    "scripts": {
+        "start": "electron .",
+        "debug": "electron --trace-warnings .",
+        "build": "electron-builder --linux",
+        "build-linux": "electron-builder --linux",
+        "build-windows": "echo comming soon",
+        "build-windows32": "echo comming soon",
+        "build-mac": "echo comming soon"
+    },
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/elkadrey/battery-dedector.git"
+    },
+    "keywords": [
+        "Battery",
+        "dedector",
+        "indecator"
+    ],
+    "author": "Ahmed Elkadrey",
+    "license": "ISC",
+    "bugs": {
+        "url": "https://github.com/elkadrey/battery-dedector/issues"
+    },
+    "homepage": "https://github.com/elkadrey/battery-dedector#readme",
+    "devDependencies": {
+        "electron": "^28.1.0",
+        "electron-builder": "^24.9.1"
+    },
+    "dependencies": {
+        "bootstrap": "^5.3.2",        
+        "electron-context-menu": "^3.6.1",
+        "electron-notarize": "^1.2.2",
+        "electron-prompt": "^1.7.0",
+        "node-storage": "^0.0.9"
+    },
+    "build": {
+        "appId": "com.elkadrey.batterydetector",
+        "productName": "Battery detector",
+        "target": "NSIS",
+        "directories": {
+            "output": "dist"
+        },
+        "nsis": {
+            "allowToChangeInstallationDirectory": false,
+            "oneClick": true
+        },
+        "extraResources": [
+            {
+                "from": "assets",
+                "to": "../assets"
+            }
+        ]
+    }
 }

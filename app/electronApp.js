@@ -5,12 +5,12 @@ const battery = new (require("./battery"));
 const settings = new (require("./settings"));
 const testMode = process.argv.includes("--trace-warnings");
 let main, contents, contextMenu,
-iconPath = nativeImage.createFromPath(__dirname+'/../assets/battery_icons/loading.png'),
+iconPath = nativeImage.createFromPath('./assets/battery_icons/loading.png'),
 titleName = "Battery Detector";
 let tray = null;
 let quit = false;
 let settingsLoaded = false;
-let timer = 10; //sec
+let timer = 15; //sec
 module.exports = class {
     
     constructor()
@@ -59,18 +59,19 @@ module.exports = class {
             settingsLoaded = true;
             console.log("settings loaded");
         });
-        await this.makeTray();
+        
 
         main.on('close', async (e) =>
         {
             if(!quit)
             {
                 main.hide();
-                await this.makeTray(true);
-                e.preventDefault();                
+                e.preventDefault(); 
+                return ;   
             }
         });
-        // app.exit();
+        
+        await this.makeTray();
     };
 
     async startNotifications()

@@ -1,0 +1,15 @@
+#!/usr/bin/env xdg-open
+[Desktop Entry]
+Encoding=UTF-8
+Version=2.1
+Name=Battery detector
+Comment=Battery detector with notifications
+Exec=/home/{$USER}/.battery-detector/battery-detector.AppImage
+Icon=/home/{$USER}/.battery-detector/icon.png
+Terminal=false
+StartupWMClass=Utilities
+Categories=Network;
+MimeType=x-scheme-handler/ms;
+X-Desktop-File-Install-Version=0.22
+Type=Application
+Name[en_US]=battery-detector.desktop
