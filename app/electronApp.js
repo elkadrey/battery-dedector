@@ -129,7 +129,7 @@ module.exports = class {
         if(tray) 
         {
             let {image, val} = await battery.currentIcon(true);
-            tray.setImage(nativeImage.createFromPath(image));
+            tray.setImage(nativeImage.createFromPath(image || './assets/icons/icon.png'));
             tray.setTitle(`${titleName} ${val}%`);
             tray.setToolTip(`${titleName} ${val}%`);
         }

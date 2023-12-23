@@ -5,7 +5,7 @@ const $ = require("./helper.js");
 let batteryIcons = {};
 const settings = new (require("./settings"));
 const commands = commandsList[$.dedectOS()] || {};
-const values = [10,20,45,65,80,90];
+const values = [10,20,45,65,80,95];
 let lastNotify = 0;
 const notifyLimit = 4;
 module.exports = class {    
@@ -32,9 +32,9 @@ module.exports = class {
     async currentIcon(all)
     {
         let val = await this.getValue();
-        let index = values.findIndex((num, i) => val <= num &&  (i == 0 || val > values[i-1]));
+        let index = values.findIndex((num, i) => val >= num && val < values[parseInt(i)+1]);
         let isCharging = await this.isCharging();
-        let image = batteryIcons[(isCharging ? "c_" : "")+index];
+        let image = batteryIcons[(isCharging ? "c_" : "")+index] || null;
 
         if(all)
         {
