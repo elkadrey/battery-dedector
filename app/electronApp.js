@@ -4,6 +4,9 @@ const path = require('node:path');
 const battery = new (require("./battery"));
 const settings = new (require("./settings"));
 const testMode = process.argv.includes("--trace-warnings");
+const simulator = process.argv.includes("-batSimulator");
+let simulatorLevel = 100;
+let simulatorIsInCharge = false;
 let main, contents, contextMenu,
 iconPath = nativeImage.createFromPath('./assets/battery_icons/loading.png'),
 titleName = "Battery Detector";
@@ -77,13 +80,14 @@ module.exports = class {
     async startNotifications()
     {
         setTimeout(async () => {
-            this.detectIcon();
+           if(!simulator)  this.detectIcon();
             await this.startNotifications();
         }, timer * 1000);
     }
 
     async makeTray(overWrite)
     {
+        let firstTimeLoaded = !tray;
         if(!tray || overWrite)
         {
             if(!tray)
@@ -120,7 +124,7 @@ module.exports = class {
 
             
             tray.setContextMenu(contextMenu);
-            await this.detectIcon();
+            if(firstTimeLoaded) await this.detectIcon();
         }
     }
 
@@ -128,10 +132,23 @@ module.exports = class {
     {
         if(tray) 
         {
-            let {image, val} = await battery.currentIcon(true);
+            let {image, val, isCharging} = await battery.currentIcon(true, simulator ? simulatorLevel : null, simulator ? simulatorIsInCharge : null);
             tray.setImage(nativeImage.createFromPath(image || './assets/icons/icon.png'));
-            tray.setTitle(`${titleName} ${val}%`);
-            tray.setToolTip(`${titleName} ${val}%`);
+            let title = `${titleName} ${val}%`+(isCharging ? ' [On charger]' : '');
+            tray.setTitle(title);
+            tray.setToolTip(title);
+
+            if(simulator)
+            {
+                console.log("simulator:", simulatorLevel, ", In charge:", simulatorIsInCharge ? "Yes":"No");
+                if(!simulatorIsInCharge) simulatorLevel -= 5;
+                else simulatorLevel += 5;
+                if(simulatorLevel <= 0 || simulatorLevel >= 100) 
+                {                    
+                    simulatorIsInCharge = !simulatorIsInCharge;
+                }
+                setTimeout(() => this.detectIcon(), 1000);
+            }
         }
     }
 

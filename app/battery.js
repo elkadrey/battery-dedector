@@ -5,7 +5,7 @@ const $ = require("./helper.js");
 let batteryIcons = {};
 const settings = new (require("./settings"));
 const commands = commandsList[$.dedectOS()] || {};
-const values = [10,20,45,65,80,95];
+const values = [10,25,45,65,80,100];
 let lastNotify = 0;
 const notifyLimit = 4;
 module.exports = class {    
@@ -29,16 +29,16 @@ module.exports = class {
         return chargeStatus ? chargeStatus == "charging" : false;
     }
 
-    async currentIcon(all)
+    async currentIcon(all, valueTester, charge)
     {
-        let val = await this.getValue();
-        let index = values.findIndex((num, i) => val >= num && val < values[parseInt(i)+1]);
-        let isCharging = await this.isCharging();
+        let val = valueTester !== null ? valueTester : await this.getValue();
+        let index = values.findIndex((num, i) => val <= num && (i == 0 || val > values[parseInt(i)-1]));
+        let isCharging = charge !== null ? charge : await this.isCharging();
         let image = batteryIcons[(isCharging ? "c_" : "")+index] || null;
 
         if(all)
         {
-            if(lastNotify == 0)
+            if(lastNotify == 0 && valueTester === null)
             {
                 if(isCharging && val >= settings.batteryMax)
                 {
@@ -49,11 +49,12 @@ module.exports = class {
                 {
                     lastNotify = notifyLimit;
                     notifications.send(`Battery is about to DISCHARGE (${val}%)`, "Connect power supply to continue");
+                    $.exe("spd-say \"Connect Charger\" || speak \"Connect Charger\"");
                 }
             }
             else if(lastNotify > 0) lastNotify--;
         }
 
-        return all ? {val,image} : image;
+        return all ? {val,image,isCharging} : image;
     }
 }
