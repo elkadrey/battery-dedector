@@ -11,7 +11,7 @@
         "build-windows": "echo comming soon",
         "build-windows32": "echo comming soon",
         "build-mac": "echo comming soon",
-        "bat-simulator": "electron --trace-warnings . -batSimulator"
+        "simulator": "electron --trace-warnings . -batSimulator"
     },
     "repository": {
         "type": "git",
