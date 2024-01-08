@@ -1,6 +1,6 @@
 {
     "name": "battery-detector",
-    "version": "1.0.3",
+    "version": "1.0.4",
     "description": "Battery detector with notifications",
     "main": "app.js",
     "scripts": {
